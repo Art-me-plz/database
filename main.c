@@ -74,7 +74,7 @@ void add (void)
      scanf("%d", &database[Number].availablebooks);
   }
 
-  books = fopen("books.csv", "a"); // запишем все в файл для дальнейшей работы
+  books = fopen("books.csv", "a"); // запиcываем все в файл для дальнейшей безопасной работы
     fprintf(books, "%lld;%s;%s;%d;%d\n", database[Number].id, database[Number].autors,
       database[Number].name, database[Number].allbooks, database[Number].availablebooks);
   fclose(books);
@@ -99,7 +99,7 @@ int menu()
 
 void Del()
 {
-  int poisk = 0; // переменная для поиска номера в массиве всей базы
+  int poisk = 0; //идентификатор для поиска в массиве
   long long iddel = 0; // id удаляемого компонента
   int nd = 0; // (number_of_delete) номер в массиве всей базы 
 
@@ -136,7 +136,7 @@ void Del()
 
 void out (void) 
 {
-  Number = 1;
+  Number = 1; //нужно для для перезаписи массива
   books = fopen("books.csv", "r");
   if (books == NULL) {
     printf("Failed to open the file");
@@ -184,9 +184,9 @@ void out (void)
 }
 
  void edit(void) {
-  int editnum = 1;
-  int poisk = 0;
-  long long idedit = 0;
+  int editnum = 1; // номер изменяемого элемента
+  int poisk = 0; //идентификатор для поиска в массиве
+  long long idedit = 0; //id изменяемого элемента
 
   books = fopen("books.csv", "w");
   while (poisk == 0) {
@@ -222,9 +222,9 @@ void out (void)
  }
 
  void chenge_books(void) {
-  long long idchange = 0;
-  int changenum = 0;
-  int poisk = 0;
+  long long idchange = 0; //id изменяемого элемента
+  int changenum = 0; // номер изменяемого элемента
+  int poisk = 0; //идентификатор для поиска в массиве
 
   books = fopen("books.csv", "w");
   while (poisk == 0) {
