@@ -19,9 +19,11 @@ int Number = 1; // Количество занятых элементов в м�
 FILE* books; 
 
 int menu(void);
-void add (void);
+void add(void);
 void Del(void);
-void out (void);
+void out(void);
+void edit(void);
+void chenge_books(void);
 
 int main(int argc, char const *argv[])
 {
@@ -38,6 +40,12 @@ int main(int argc, char const *argv[])
       break;
       case 2:
         Del();
+      break;
+      case 3:
+        edit();
+      break;
+      case 4:
+        chenge_books();
       break;
     }
   }
@@ -59,14 +67,16 @@ void add (void)
   scanf("%s", database[Number].name);
   printf("The number of all this books > ");
   scanf("%d", &database[Number].allbooks);
-  printf("The number of all available books (not more than all) > ");
+  printf("The number of all available books (no more than all) > ");
   scanf("%d", &database[Number].availablebooks);
-
-  books = fopen("books.csv", "w"); // запишем все в файл для дальнейшей работы
-  for (int x = 1; x <= Number; x++) {
-    fprintf(books, "%lld;%s;%s;%d;%d\n", database[x].id, database[x].autors,
-      database[x].name, database[x].allbooks, database[x].availablebooks);
+  if (database[Number].allbooks < database[Number].availablebooks) {
+     printf("Enter another count of available books (later value is not true): ");
+     scanf("%d", &database[Number].availablebooks);
   }
+
+  books = fopen("books.csv", "a"); // запишем все в файл для дальнейшей работы
+    fprintf(books, "%lld;%s;%s;%d;%d\n", database[Number].id, database[Number].autors,
+      database[Number].name, database[Number].allbooks, database[Number].availablebooks);
   fclose(books);
   Number ++;
   printf("successfully added\n");
@@ -93,8 +103,6 @@ void Del()
   long long iddel = 0; // id удаляемого компонента
   int nd = 0; // (number_of_delete) номер в массиве всей базы 
 
-  out();
-
   books = fopen("books.csv", "w");
   while (poisk == 0) { // ищем номер в массиве всей базы
     printf("Enter the ID of the book you want to delete: ");
@@ -109,28 +117,26 @@ void Del()
       printf("book with this ID was not found\n");
     }
   }
-  poisk = 0;
-  for (int x = 1; x < nd; x++) { // записываем все элементы до удаляемого в файл
-    fprintf(books, "%lld;%s;%s;%d;%d\n", database[x].id, database[x].autors, 
-      database[x].name, database[x].allbooks, database[x].availablebooks);
-  }
+
   for (nd; nd < Number; nd++) { // сдвигаем элементы массива после удаляемого на 1 ячейку назад и записываем в файл
     database[nd].id = database[nd + 1].id;
     strncpy(database[nd].autors, database[nd + 1].autors, 100);
     strncpy(database[nd].name, database[nd + 1].name, 100);
     database[nd].allbooks = database[nd + 1].allbooks;
     database[nd].availablebooks = database[nd + 1].availablebooks;
-    fprintf(books, "%lld;%s;%s;%d;%d\n", database[nd].id, database[nd].autors,
-      database[nd].name, database[nd].allbooks, database[nd].availablebooks);
+  }
+    for (int x = 1; x < (Number + 1); x++) { 
+    fprintf(books, "%lld;%s;%s;%d;%d\n", database[x].id, database[x].autors, 
+      database[x].name, database[x].allbooks, database[x].availablebooks);
   }
   fclose(books);
   Number--;
-  database[Number].id = NULL;
   printf("successfully deleted\n");
 }
 
 void out (void) 
 {
+  Number = 1;
   books = fopen("books.csv", "r");
   if (books == NULL) {
     printf("Failed to open the file");
@@ -170,9 +176,86 @@ void out (void)
 
     fscanf(books, "%d;%d", &database[Number].allbooks, &database[Number].availablebooks);
     printf("%13d ", database[Number].allbooks);
-    printf("%15d\n", database[Number].allbooks);
+    printf("%15d\n", database[Number].availablebooks);
     Number++;
     fscanf(books, "%lld;", &database[Number].id);
   }
   fclose(books);
 }
+
+ void edit(void) {
+  int editnum = 1;
+  int poisk = 0;
+  long long idedit = 0;
+
+  books = fopen("books.csv", "w");
+  while (poisk == 0) {
+    printf("Enter ID fo the edited book: ");
+    scanf("%lld", &idedit);
+    for (int k = 1; k < Number; k++) {
+      if (idedit ==  database[k].id) {
+        poisk = 1;
+        editnum = k;
+      }
+    }
+    if (poisk == 0) {
+      printf("book with this ID was not found\n");
+    }
+  }
+  for (int x = 1; x < editnum; x++) {
+    fprintf(books, "%lld;%s;%s;%d;%d\n", database[x].id, database[x].autors, 
+      database[x].name, database[x].allbooks, database[x].availablebooks);
+  }
+  printf("New autors > ");
+  scanf("%s", database[editnum].autors);
+  printf("New name of a book > ");
+  scanf("%s", database[editnum].name);
+  fprintf(books, "%lld;%s;%s;%d;%d\n", database[editnum].id, database[editnum].autors, 
+      database[editnum].name, database[editnum].allbooks, database[editnum].availablebooks);
+
+  for (editnum; editnum < Number; editnum++) {
+ fprintf(books, "%lld;%s;%s;%d;%d\n", database[editnum + 1].id, database[editnum + 1].autors, 
+      database[editnum + 1].name, database[editnum + 1].allbooks, database[editnum + 1].availablebooks);
+      }
+  fclose(books);
+  printf("successfully edited\n");
+ }
+
+ void chenge_books(void) {
+  long long idchange = 0;
+  int changenum = 0;
+  int poisk = 0;
+
+  books = fopen("books.csv", "w");
+  while (poisk == 0) {
+    printf("Enter ID of the book which  count u want to chenge: ");
+    scanf("%lld", &idchange);
+    for (int k = 1; k < Number; k++) {
+      if (idchange == database[k].id) {
+        poisk = 1;
+        changenum = k;
+      }
+    }
+    if (poisk == 0) {
+      printf("book with this ID was not found\n");
+    }
+  }
+  for (int x = 1; x < changenum; x++) {
+    fprintf(books, "%lld;%s;%s;%d;%d\n", database[x].id, database[x].autors, 
+      database[x].name, database[x].allbooks, database[x].availablebooks);
+  }
+  printf("Enter new count of all books: ");
+  scanf("%d", &database[changenum].allbooks);
+  if (database[changenum].allbooks < database[changenum].availablebooks) {
+     printf("Enter new count of available books (later value is not true): ");
+     scanf("%d", &database[changenum].availablebooks);
+  }
+
+  fprintf(books, "%lld;%s;%s;%d;%d\n", database[changenum].id, database[changenum].autors, 
+      database[changenum].name, database[changenum].allbooks, database[changenum].availablebooks);
+  for (changenum; changenum < Number; changenum++) {
+    fprintf(books, "%lld;%s;%s;%d;%d\n", database[changenum + 1].id, database[changenum + 1].autors, 
+      database[changenum + 1].name, database[changenum + 1].allbooks, database[changenum + 1].availablebooks);
+  }
+  fclose(books);
+ }
